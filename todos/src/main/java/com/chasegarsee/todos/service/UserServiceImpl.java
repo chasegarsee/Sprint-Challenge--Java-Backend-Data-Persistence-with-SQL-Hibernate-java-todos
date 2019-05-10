@@ -1,6 +1,7 @@
 package com.chasegarsee.todos.service;
 
 import com.chasegarsee.todos.exceptions.ResourceNotFoundException;
+import com.chasegarsee.todos.model.Todo;
 import com.chasegarsee.todos.model.User;
 import com.chasegarsee.todos.model.UserRoles;
 import com.chasegarsee.todos.repository.RoleRepository;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service(value = "userService")
@@ -131,6 +133,19 @@ public class UserServiceImpl implements UserDetailsService, UserService
         {
             throw new EntityNotFoundException(authentication.getName());
         }
+    }
+
+    @Override
+    @Transactional
+    public User updateTodos(Todo todo, long id)
+    {
+        User userid = userrepos.findById(id).get();
+        todo.setUser(userid);
+        ArrayList<Todo> todos = new ArrayList<>();
+        userid.getTodos().iterator().forEachRemaining(todos::add);
+        todos.add(todo);
+        userid.setTodos(todos);
+        return userrepos.save(userid);
     }
 }
 
